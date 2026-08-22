@@ -47,9 +47,25 @@ public class JwtService {
                 .compact();
     }
 
+//    Validate if Jwt token belongs to user by extracting username claim from Jwt and compare
+//    to the username of userDetails object.
+//    Also ensure the Jwt is not expired
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
 //    Generate jwt without claims
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private Claims extractAllClaims(String token) {
